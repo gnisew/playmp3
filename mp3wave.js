@@ -1,6 +1,6 @@
-// 增强的MP3波形播放器插件
+// 改進的 MP3 波形播放器插件
 (function() {
-    // 创建样式（保持不变）
+    // 創建樣式
     const style = document.createElement('style');
     style.textContent = `
         .mp3wave-player {
@@ -20,15 +20,15 @@
     `;
     document.head.appendChild(style);
 
-    // 主函数
+    // 主函數
     function createMP3WaveformPlayer(element) {
         const mp3Url = element.getAttribute('data-mp3-url');
         if (!mp3Url) {
-            console.error('No MP3 URL provided');
+            console.error('沒有提供 MP3 URL');
             return;
         }
 
-        // 获取属性
+        // 獲取屬性
         let playMode = element.getAttribute('data-play-mode');
         const waveColor = element.getAttribute('data-wave-color') || '#4CAF50';
         const progressColor = element.getAttribute('data-progress-color') || '#45a049';
@@ -36,20 +36,21 @@
         const height = parseInt(element.getAttribute('data-height') || '128');
 
         element.classList.add('mp3wave-player');
-        element.style.width = width;
+        element.style.width = width; // 直接設置元素寬度
 
-        // 创建波形图容器
+        // 創建波形圖容器
         const waveformDiv = document.createElement('div');
         waveformDiv.classList.add('waveform');
         waveformDiv.style.height = `${height}px`;
+        waveformDiv.style.width = '100%'; // 確保波形圖填滿容器
         element.appendChild(waveformDiv);
 
-        // 创建状态显示元素
+        // 創建狀態顯示元素
         const statusDiv = document.createElement('div');
         statusDiv.classList.add('status');
         element.appendChild(statusDiv);
 
-        // 初始化WaveSurfer
+        // 初始化 WaveSurfer
         const wavesurfer = WaveSurfer.create({
             container: waveformDiv,
             waveColor: waveColor,
@@ -62,63 +63,59 @@
             barGap: 2
         });
 
-        // 加载音频
+        // 載入音頻
         wavesurfer.load(mp3Url);
 
-        // 音频加载完成事件
+        // 音頻載入完成事件
         wavesurfer.on('ready', function() {
             const duration = wavesurfer.getDuration();
             
-            // 如果没有设置 playMode，根据音频长度决定
+            // 如果沒有設置 playMode，根據音頻長度決定
             if (!playMode) {
                 playMode = duration < 10 ? 'restart' : 'default';
             }
 
-            // 设置点击事件处理
+            // 設置點擊事件處理
             waveformDiv.addEventListener('click', function(e) {
                 if (playMode === 'restart') {
-                    if (wavesurfer.isPlaying()) {
-                        wavesurfer.stop();
-                    } else {
-                        wavesurfer.stop();
-                        wavesurfer.play();
-                    }
+                    wavesurfer.stop(); // 停止播放
+                    wavesurfer.play(); // 從頭開始播放
                 } else {
-                    wavesurfer.playPause();
+                    wavesurfer.playPause(); // 播放/暫停
                 }
             });
 
             statusDiv.textContent = playMode === 'restart' 
-                ? '音频已加载，点击播放/停止' 
-                : '音频已加载，点击播放/暂停';
+                ? '音頻已載入，點擊從頭播放' 
+                : '音頻已載入，點擊播放/暫停';
         });
 
-        // 错误处理
+        // 錯誤處理
         wavesurfer.on('error', function(e) {
-            console.error('WaveSurfer error:', e);
-            statusDiv.textContent = '加载音频时出错：' + e;
+            console.error('WaveSurfer 錯誤:', e);
+            statusDiv.textContent = '載入音頻時出錯：' + e;
         });
 
-        // 加载进度
+        // 載入進度
         wavesurfer.on('loading', function(percent) {
-            statusDiv.textContent = '加载进度：' + percent + '%';
+            statusDiv.textContent = '載入進度：' + percent + '%';
         });
     }
 
-    // 初始化所有mp3wave元素
+    // 初始化所有 mp3wave 元素
     function initAllPlayers() {
         const players = document.querySelectorAll('mp3wave');
         players.forEach(createMP3WaveformPlayer);
     }
 
-    // 当DOM加载完成时初始化所有播放器
+    // 當 DOM 載入完成時初始化所有播放器
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initAllPlayers);
     } else {
         initAllPlayers();
     }
 
-    // 设置一个MutationObserver来处理动态添加的元素
+    // 設置一個 MutationObserver 來處理動態添加的元素
     const observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
             mutation.addedNodes.forEach(function(node) {
