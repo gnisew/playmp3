@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>支持本地文件的MP3聲波播放器插件示例</title>
+    <title>改進的MP3聲波播放器插件示例</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -28,7 +28,7 @@
             margin: 20px 0;
             padding: 10px 20px;
         }
-        #initButton, #fileInput {
+        #initButton {
             display: block;
             margin: 20px auto;
             padding: 10px 20px;
@@ -39,31 +39,23 @@
             border-radius: 4px;
             cursor: pointer;
         }
-        #initButton:hover, #fileInput:hover {
+        #initButton:hover {
             background-color: #45a049;
-        }
-        #fileInput {
-            background-color: #3498db;
-        }
-        #fileInput:hover {
-            background-color: #2980b9;
         }
     </style>
 </head>
 <body>
-    <h1>支持本地文件的MP3聲波播放器插件示例</h1>
+    <h1>改進的MP3聲波播放器插件示例</h1>
     
     <div class="instructions">
         <p>操作說明：</p>
         <ul>
-            <li>選擇本地MP3文件或使用預設URL</li>
             <li>點擊「初始化播放器」按鈕來啟動播放器</li>
             <li>單擊波形：播放/暫停</li>
             <li>雙擊波形：從頭開始播放</li>
         </ul>
     </div>
 
-    <input type="file" id="fileInput" accept="audio/mp3">
     <button id="initButton">初始化播放器</button>
     <div id="waveform-container"></div>
 
@@ -73,7 +65,7 @@
     (function(window) {
         let wavesurfer;
 
-        function createMP3WaveformPlayer(elementId, audioSource) {
+        function createMP3WaveformPlayer(elementId, mp3Url) {
             const container = document.getElementById(elementId);
             if (!container) {
                 console.error('Container element not found');
@@ -111,11 +103,7 @@
             });
 
             // 加載音頻
-            if (audioSource instanceof File) {
-                wavesurfer.loadBlob(audioSource);
-            } else {
-                wavesurfer.load(audioSource);
-            }
+            wavesurfer.load(mp3Url);
 
             // 單擊事件：播放/暫停
             waveformDiv.addEventListener('click', function(e) {
@@ -154,18 +142,11 @@
         }
 
         // 將函數暴露到全局作用域
-        window.initMP3WaveformPlayer = function(elementId, defaultMp3Url) {
+        window.initMP3WaveformPlayer = function(elementId, mp3Url) {
             const initButton = document.getElementById('initButton');
-            const fileInput = document.getElementById('fileInput');
-            
             initButton.addEventListener('click', function() {
-                let audioSource = defaultMp3Url;
-                if (fileInput.files.length > 0) {
-                    audioSource = fileInput.files[0];
-                }
-                createMP3WaveformPlayer(elementId, audioSource);
+                createMP3WaveformPlayer(elementId, mp3Url);
                 initButton.style.display = 'none';  // 隱藏初始化按鈕
-                fileInput.style.display = 'none';   // 隱藏文件輸入
             });
         };
     })(window);
