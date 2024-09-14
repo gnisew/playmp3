@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MP3聲波播放器插件示例</title>
+    <title>簡化的MP3聲波播放器插件示例</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/6.6.3/wavesurfer.min.js"></script>
+    <script src="mp3play.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -16,12 +18,6 @@
         h1 {
             color: #2c3e50;
         }
-        #waveform-container {
-            margin-top: 20px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 20px;
-        }
         .instructions {
             background-color: #f8f8f8;
             border-left: 4px solid #4CAF50;
@@ -31,108 +27,11 @@
     </style>
 </head>
 <body>
-    <h1>MP3聲波播放器插件示例</h1>
+    <h1>簡化的MP3聲波播放器插件示例</h1>
     
-    <div class="instructions">
-        <p>操作說明：</p>
-        <ul>
-            <li>單擊波形：播放/暫停</li>
-            <li>雙擊波形：從頭開始播放</li>
-        </ul>
-    </div>
 
-    <div id="waveform-container"></div>
+    <mp3-waveform data-mp3-url="k010.mp3"></mp3-waveform>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/6.6.3/wavesurfer.min.js"></script>
-    <script>
-    // MP3聲波播放器插件
-    (function(window) {
-        function createMP3WaveformPlayer(elementId, mp3Url) {
-            // 創建容器元素
-            const container = document.getElementById(elementId);
-            if (!container) {
-                console.error('Container element not found');
-                return;
-            }
 
-            // 創建波形圖容器
-            const waveformDiv = document.createElement('div');
-            waveformDiv.style.width = '100%';
-            waveformDiv.style.height = '128px';
-            waveformDiv.style.backgroundColor = '#f0f0f0';
-            waveformDiv.style.borderRadius = '4px';
-            waveformDiv.style.overflow = 'hidden';
-            container.appendChild(waveformDiv);
-
-            // 創建狀態顯示元素
-            const statusDiv = document.createElement('div');
-            statusDiv.style.marginTop = '10px';
-            statusDiv.style.textAlign = 'center';
-            statusDiv.style.color = '#666';
-            statusDiv.style.fontSize = '14px';
-            container.appendChild(statusDiv);
-
-            // 初始化WaveSurfer
-            const wavesurfer = WaveSurfer.create({
-                container: waveformDiv,
-                waveColor: '#4CAF50',
-                progressColor: '#45a049',
-                cursorColor: '#333',
-                barWidth: 2,
-                barRadius: 3,
-                cursorWidth: 1,
-                height: 128,
-                barGap: 2
-            });
-
-            // 加載音頻
-            wavesurfer.load(mp3Url);
-
-            // 單擊事件：播放/暫停
-            waveformDiv.addEventListener('click', function(e) {
-                wavesurfer.playPause();
-            });
-
-            // 雙擊事件：從頭播放
-            let lastClickTime = 0;
-            waveformDiv.addEventListener('click', function(e) {
-                const currentTime = new Date().getTime();
-                const timeDiff = currentTime - lastClickTime;
-                if (timeDiff < 300) {  // 300毫秒內的雙擊
-                    wavesurfer.stop();
-                    wavesurfer.play();
-                }
-                lastClickTime = currentTime;
-            });
-
-            // 音頻加載完成事件
-            wavesurfer.on('ready', function() {
-                statusDiv.textContent = '音頻已加載，點擊波形播放/暫停，雙擊從頭播放';
-            });
-
-            // 錯誤處理
-            wavesurfer.on('error', function(e) {
-                console.error('WaveSurfer error:', e);
-                statusDiv.textContent = '加載音頻時出錯：' + e;
-            });
-
-            // 加載進度
-            wavesurfer.on('loading', function(percent) {
-                statusDiv.textContent = '加載進度：' + percent + '%';
-            });
-
-            // 返回wavesurfer實例，以便進行進一步的自定義
-            return wavesurfer;
-        }
-
-        // 將函數暴露到全局作用域
-        window.createMP3WaveformPlayer = createMP3WaveformPlayer;
-    })(window);
-
-    // 使用插件
-    document.addEventListener('DOMContentLoaded', function() {
-        createMP3WaveformPlayer('waveform-container', 'k010.mp3');
-    });
-    </script>
 </body>
 </html>
