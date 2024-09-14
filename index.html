@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>改進的MP3聲波播放器插件示例</title>
+    <title>MP3聲波播放器插件示例</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -28,44 +28,27 @@
             margin: 20px 0;
             padding: 10px 20px;
         }
-        #initButton {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
-            font-size: 16px;
-            color: white;
-            background-color: #4CAF50;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        #initButton:hover {
-            background-color: #45a049;
-        }
     </style>
 </head>
 <body>
-    <h1>改進的MP3聲波播放器插件示例</h1>
+    <h1>MP3聲波播放器插件示例</h1>
     
     <div class="instructions">
         <p>操作說明：</p>
         <ul>
-            <li>點擊「初始化播放器」按鈕來啟動播放器</li>
             <li>單擊波形：播放/暫停</li>
             <li>雙擊波形：從頭開始播放</li>
         </ul>
     </div>
 
-    <button id="initButton">初始化播放器</button>
     <div id="waveform-container"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/6.6.3/wavesurfer.min.js"></script>
     <script>
-    // 改進的MP3聲波播放器插件
+    // MP3聲波播放器插件
     (function(window) {
-        let wavesurfer;
-
         function createMP3WaveformPlayer(elementId, mp3Url) {
+            // 創建容器元素
             const container = document.getElementById(elementId);
             if (!container) {
                 console.error('Container element not found');
@@ -90,7 +73,7 @@
             container.appendChild(statusDiv);
 
             // 初始化WaveSurfer
-            wavesurfer = WaveSurfer.create({
+            const wavesurfer = WaveSurfer.create({
                 container: waveformDiv,
                 waveColor: '#4CAF50',
                 progressColor: '#45a049',
@@ -138,22 +121,17 @@
                 statusDiv.textContent = '加載進度：' + percent + '%';
             });
 
+            // 返回wavesurfer實例，以便進行進一步的自定義
             return wavesurfer;
         }
 
         // 將函數暴露到全局作用域
-        window.initMP3WaveformPlayer = function(elementId, mp3Url) {
-            const initButton = document.getElementById('initButton');
-            initButton.addEventListener('click', function() {
-                createMP3WaveformPlayer(elementId, mp3Url);
-                initButton.style.display = 'none';  // 隱藏初始化按鈕
-            });
-        };
+        window.createMP3WaveformPlayer = createMP3WaveformPlayer;
     })(window);
 
     // 使用插件
     document.addEventListener('DOMContentLoaded', function() {
-        window.initMP3WaveformPlayer('waveform-container', 'k010.mp3');
+        createMP3WaveformPlayer('waveform-container', 'k010.mp3');
     });
     </script>
 </body>
