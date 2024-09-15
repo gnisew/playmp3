@@ -79,6 +79,7 @@
             waveformDiv.addEventListener('click', function(e) {
                 if (playMode === 'restart') {
                     wavesurfer.stop(); // 停止播放
+                    wavesurfer.seekTo(0); // 將播放位置重置到開始
                     wavesurfer.play(); // 從頭開始播放
                 } else {
                     wavesurfer.playPause(); // 播放/暫停
