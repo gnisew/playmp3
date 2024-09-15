@@ -42,7 +42,7 @@
         const waveformDiv = document.createElement('div');
         waveformDiv.classList.add('waveform');
         waveformDiv.style.height = `${height}px`;
-        waveformDiv.style.width = '100%'; // 確保波形圖填滿容器
+        waveformDiv.style.width = width; // 確保波形圖填滿容器
         element.appendChild(waveformDiv);
 
         // 創建狀態顯示元素
