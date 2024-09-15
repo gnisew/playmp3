@@ -1,10 +1,11 @@
 // 改進的 MP3 波形播放器插件
 (function() {
-    // 創建樣式（保持不變）
+    // 創建樣式
     const style = document.createElement('style');
     style.textContent = `
         .mp3wave-player {
             margin: 10px 0;
+            position: relative;
         }
         .mp3wave-player .waveform {
             background-color: #f0f0f0;
@@ -16,6 +17,14 @@
             text-align: center;
             color: #666;
             font-size: 14px;
+        }
+        .mp3wave-player .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
         }
     `;
     document.head.appendChild(style);
@@ -44,6 +53,11 @@
         waveformDiv.style.height = `${height}px`;
         waveformDiv.style.width = width;
         element.appendChild(waveformDiv);
+
+        // 創建遮罩層
+        const overlay = document.createElement('div');
+        overlay.classList.add('overlay');
+        element.appendChild(overlay);
 
         // 創建狀態顯示元素
         const statusDiv = document.createElement('div');
@@ -75,7 +89,8 @@
                 : '音頻已載入，點擊播放/暫停';
 
             // 設置點擊事件處理
-            waveformDiv.addEventListener('click', function(e) {
+            overlay.addEventListener('click', function(e) {
+                e.preventDefault(); // 防止事件傳播到 WaveSurfer 內部
                 if (playMode === 'restart') {
                     wavesurfer.stop(); // 停止當前播放
                     wavesurfer.seekTo(0); // 將播放位置重置到開始
