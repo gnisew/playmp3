@@ -2,7 +2,7 @@
 (function() {
     // 創建樣式
     const style = document.createElement('style');
-    style.textContent = 
+    style.textContent = `
         .mp3wave-player {
             margin: 10px 0;
             position: relative;
@@ -20,8 +20,9 @@
             height: 100%;
             cursor: pointer;
         }
-    ;
+    `;
     document.head.appendChild(style);
+
     // 主函數
     function createMP3WaveformPlayer(element) {
         const mp3Url = element.getAttribute('data-mp3-url');
@@ -29,24 +30,29 @@
             console.error('沒有提供 MP3 URL');
             return;
         }
+
         // 獲取屬性
         let playMode = element.getAttribute('data-play-mode') || 'default';
         const waveColor = element.getAttribute('data-wave-color') || '#4CAF50';
         const progressColor = element.getAttribute('data-progress-color') || '#45a049';
         const width = element.getAttribute('data-width') || '100%';
         const height = parseInt(element.getAttribute('data-height') || '128');
+
         element.classList.add('mp3wave-player');
         element.style.width = width;
+
         // 創建波形圖容器
         const waveformDiv = document.createElement('div');
         waveformDiv.classList.add('waveform');
-        waveformDiv.style.height = ${height}px;
+        waveformDiv.style.height = `${height}px`;
         waveformDiv.style.width = width;
         element.appendChild(waveformDiv);
+
         // 創建遮罩層
         const overlay = document.createElement('div');
         overlay.classList.add('overlay');
         element.appendChild(overlay);
+
         // 初始化 WaveSurfer
         const wavesurfer = WaveSurfer.create({
             container: waveformDiv,
@@ -60,14 +66,17 @@
             barGap: 2,
             interact: playMode !== 'restart' // 只在非 restart 模式下允許交互
         });
+
         // 載入音頻
         wavesurfer.load(mp3Url);
+
         // 音頻載入完成事件
         wavesurfer.on('ready', function() {
             // 設置點擊事件處理
             overlay.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
+
                 if (playMode === 'restart') {
                     wavesurfer.stop();
                     wavesurfer.seekTo(0);
@@ -77,6 +86,7 @@
                 }
             });
         });
+
         // 播放結束事件
         wavesurfer.on('finish', function() {
             if (playMode === 'restart') {
@@ -84,17 +94,20 @@
             }
         });
     }
+
     // 初始化所有 mp3wave 元素
     function initAllPlayers() {
         const players = document.querySelectorAll('mp3wave');
         players.forEach(createMP3WaveformPlayer);
     }
+
     // 當 DOM 載入完成時初始化所有播放器
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initAllPlayers);
     } else {
         initAllPlayers();
     }
+
     // 設置一個 MutationObserver 來處理動態添加的元素
     const observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
