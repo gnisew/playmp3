@@ -1,6 +1,6 @@
 // 簡化的 MP3 波形播放器插件
 (function() {
-    // 創建樣式（保持不變）
+    // 創建樣式
     const style = document.createElement('style');
     style.textContent = `
         .mp3wave-player {
@@ -64,11 +64,13 @@
             cursorWidth: 1,
             height: height,
             barGap: 2,
-            interact: true // 允許所有模式下的交互
+            interact: true
         });
 
         // 載入音頻
         wavesurfer.load(mp3Url);
+
+        let isPlaying = false;
 
         // 音頻載入完成事件
         wavesurfer.on('ready', function() {
@@ -79,22 +81,45 @@
 
                 if (playMode === 'restart') {
                     wavesurfer.stop();
-                    wavesurfer.seekTo(0);
                     wavesurfer.play();
                 } else { // default mode
-                    const clickPosition = e.offsetX / overlay.offsetWidth;
-                    if (wavesurfer.isPlaying()) {
-                        wavesurfer.pause();
-                    } else {
-                        wavesurfer.seekTo(clickPosition);
+                    if (!isPlaying) {
+                        if (wavesurfer.getCurrentTime() === wavesurfer.getDuration()) {
+                            wavesurfer.seekTo(0);
+                        }
                         wavesurfer.play();
+                    } else {
+                        wavesurfer.pause();
                     }
+                    isPlaying = !isPlaying;
                 }
             });
+
+            // 為 default 模式添加點擊定位功能
+            if (playMode !== 'restart') {
+                waveformDiv.addEventListener('click', function(e) {
+                    const clickPosition = e.offsetX / waveformDiv.offsetWidth;
+                    wavesurfer.seekTo(clickPosition);
+                    if (!isPlaying) {
+                        wavesurfer.play();
+                        isPlaying = true;
+                    }
+                });
+            }
+        });
+
+        // 播放狀態變更事件
+        wavesurfer.on('play', function() {
+            isPlaying = true;
+        });
+
+        wavesurfer.on('pause', function() {
+            isPlaying = false;
         });
 
         // 播放結束事件
         wavesurfer.on('finish', function() {
+            isPlaying = false;
             if (playMode === 'restart') {
                 wavesurfer.seekTo(0);
             }
