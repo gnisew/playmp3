@@ -1,4 +1,4 @@
-// 改進的 MP3 波形播放器插件
+// 簡化的 MP3 波形播放器插件
 (function() {
     // 創建樣式
     const style = document.createElement('style');
@@ -11,12 +11,6 @@
             background-color: #f0f0f0;
             border-radius: 4px;
             overflow: hidden;
-        }
-        .mp3wave-player .status {
-            margin-top: 10px;
-            text-align: center;
-            color: #666;
-            font-size: 14px;
         }
         .mp3wave-player .overlay {
             position: absolute;
@@ -59,11 +53,6 @@
         overlay.classList.add('overlay');
         element.appendChild(overlay);
 
-        // 創建狀態顯示元素
-        const statusDiv = document.createElement('div');
-        statusDiv.classList.add('status');
-        element.appendChild(statusDiv);
-
         // 初始化 WaveSurfer
         const wavesurfer = WaveSurfer.create({
             container: waveformDiv,
@@ -75,82 +64,34 @@
             cursorWidth: 1,
             height: height,
             barGap: 2,
-            interact: false, // 禁用默認的交互
-            plugins: [
-                WaveSurfer.cursor.create({
-                    showTime: true,
-                    opacity: 1,
-                    customShowTimeStyle: {
-                        'background-color': '#000',
-                        color: '#fff',
-                        padding: '2px',
-                        'font-size': '10px'
-                    }
-                })
-            ]
+            interact: playMode !== 'restart' // 只在非 restart 模式下允許交互
         });
 
         // 載入音頻
         wavesurfer.load(mp3Url);
 
-        let isPlaying = false;
-
         // 音頻載入完成事件
         wavesurfer.on('ready', function() {
-            statusDiv.textContent = playMode === 'restart' 
-                ? '音頻已載入，點擊從頭播放' 
-                : '音頻已載入，點擊播放/暫停';
-
             // 設置點擊事件處理
             overlay.addEventListener('click', function(e) {
-                e.preventDefault(); // 防止事件傳播到 WaveSurfer 內部
-                e.stopPropagation(); // 確保事件不會繼續傳播
+                e.preventDefault();
+                e.stopPropagation();
 
                 if (playMode === 'restart') {
-                    wavesurfer.stop(); // 停止當前播放
-                    wavesurfer.seekTo(0); // 將播放位置重置到開始
-                    wavesurfer.play(); // 從頭開始播放
-                    isPlaying = true;
+                    wavesurfer.stop();
+                    wavesurfer.seekTo(0);
+                    wavesurfer.play();
                 } else { // default mode
-                    if (!isPlaying) {
-                        if (wavesurfer.getCurrentTime() === wavesurfer.getDuration()) {
-                            wavesurfer.seekTo(0);
-                        }
-                        wavesurfer.play();
-                    } else {
-                        wavesurfer.pause();
-                    }
-                    isPlaying = !isPlaying;
+                    wavesurfer.playPause();
                 }
             });
-
-            // 在 default 模式下，允許拖動進度條
-            if (playMode !== 'restart') {
-                overlay.addEventListener('mousedown', function(e) {
-                    const rect = waveformDiv.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const seekPercentage = x / rect.width;
-                    wavesurfer.seekTo(seekPercentage);
-                });
-            }
         });
 
+        // 播放結束事件
         wavesurfer.on('finish', function() {
-            isPlaying = false;
             if (playMode === 'restart') {
                 wavesurfer.seekTo(0);
             }
-        });
-
-        // 錯誤處理
-        wavesurfer.on('error', function(e) {
-            console.error('WaveSurfer 錯誤:', e);
-            statusDiv.textContent = '載入音頻時出錯：' + e;
-        });
-
-        // 載入進度
-        wavesurfer.on('loading', function(percent) {
-            statusDiv.textContent = '載入進度：' + percent + '%';
         });
     }
 
