@@ -1,6 +1,6 @@
 // 改進的 MP3 波形播放器插件
 (function() {
-    // 創建樣式
+    // 創建樣式（保持不變）
     const style = document.createElement('style');
     style.textContent = `
         .mp3wave-player {
@@ -29,20 +29,20 @@
         }
 
         // 獲取屬性
-        let playMode = element.getAttribute('data-play-mode');
+        let playMode = element.getAttribute('data-play-mode') || 'default';
         const waveColor = element.getAttribute('data-wave-color') || '#4CAF50';
         const progressColor = element.getAttribute('data-progress-color') || '#45a049';
         const width = element.getAttribute('data-width') || '100%';
         const height = parseInt(element.getAttribute('data-height') || '128');
 
         element.classList.add('mp3wave-player');
-        element.style.width = width; // 直接設置元素寬度
+        element.style.width = width;
 
         // 創建波形圖容器
         const waveformDiv = document.createElement('div');
         waveformDiv.classList.add('waveform');
         waveformDiv.style.height = `${height}px`;
-        waveformDiv.style.width = width; // 確保波形圖填滿容器
+        waveformDiv.style.width = width;
         element.appendChild(waveformDiv);
 
         // 創建狀態顯示元素
@@ -66,29 +66,42 @@
         // 載入音頻
         wavesurfer.load(mp3Url);
 
+        let isPlaying = false;
+
         // 音頻載入完成事件
         wavesurfer.on('ready', function() {
-            const duration = wavesurfer.getDuration();
-            
-            // 如果沒有設置 playMode，根據音頻長度決定
-            if (!playMode) {
-                playMode = duration < 10 ? 'restart' : 'default';
-            }
+            statusDiv.textContent = playMode === 'restart' 
+                ? '音頻已載入，點擊從頭播放' 
+                : '音頻已載入，點擊播放/暫停';
 
             // 設置點擊事件處理
             waveformDiv.addEventListener('click', function(e) {
                 if (playMode === 'restart') {
-                    wavesurfer.stop(); // 停止播放
-                    wavesurfer.seekTo(0); // 將播放位置重置到開始
-                    wavesurfer.play(); // 從頭開始播放
-                } else {
-                    wavesurfer.playPause(); // 播放/暫停
+                    if (!isPlaying) {
+                        wavesurfer.play();
+                    } else {
+                        wavesurfer.pause();
+                    }
+                    isPlaying = !isPlaying;
+                } else { // default mode
+                    if (!isPlaying) {
+                        if (wavesurfer.getCurrentTime() === wavesurfer.getDuration()) {
+                            wavesurfer.seekTo(0);
+                        }
+                        wavesurfer.play();
+                    } else {
+                        wavesurfer.pause();
+                    }
+                    isPlaying = !isPlaying;
                 }
             });
+        });
 
-            statusDiv.textContent = playMode === 'restart' 
-                ? '音頻已載入，點擊從頭播放' 
-                : '音頻已載入，點擊播放/暫停';
+        wavesurfer.on('finish', function() {
+            isPlaying = false;
+            if (playMode === 'restart') {
+                wavesurfer.seekTo(0);
+            }
         });
 
         // 錯誤處理
