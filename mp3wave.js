@@ -1,4 +1,4 @@
-
+// 改進的 MP3 波形播放器插件
 (function() {
     // 創建樣式（保持不變）
     const style = document.createElement('style');
@@ -77,16 +77,10 @@
             // 設置點擊事件處理
             waveformDiv.addEventListener('click', function(e) {
                 if (playMode === 'restart') {
-                    if (!isPlaying) {
-                        wavesurfer.play();
-                    } else {
-                        wavesurfer.pause();
-                    }
-                    isPlaying = !isPlaying;
-                    if (!isPlaying) {
-                        // 當暫停時，將播放位置重置到開始
-                        wavesurfer.seekTo(0);
-                    }
+                    wavesurfer.stop(); // 停止當前播放
+                    wavesurfer.seekTo(0); // 將播放位置重置到開始
+                    wavesurfer.play(); // 從頭開始播放
+                    isPlaying = true;
                 } else { // default mode
                     if (!isPlaying) {
                         if (wavesurfer.getCurrentTime() === wavesurfer.getDuration()) {
