@@ -1,9 +1,8 @@
-
 // 改進的 MP3 波形播放器插件
 (function() {
     // 創建樣式
     const style = document.createElement('style');
-    style.textContent = 
+    style.textContent = `
         .mp3wave-player {
             margin: 10px 0;
         }
@@ -18,7 +17,7 @@
             color: #666;
             font-size: 14px;
         }
-    ;
+    `;
     document.head.appendChild(style);
 
     // 主函數
@@ -42,7 +41,7 @@
         // 創建波形圖容器
         const waveformDiv = document.createElement('div');
         waveformDiv.classList.add('waveform');
-        waveformDiv.style.height = ${height}px;
+        waveformDiv.style.height = `${height}px`;
         waveformDiv.style.width = width; // 確保波形圖填滿容器
         element.appendChild(waveformDiv);
 
@@ -67,6 +66,8 @@
         // 載入音頻
         wavesurfer.load(mp3Url);
 
+        let isPlaying = false;
+
         // 音頻載入完成事件
         wavesurfer.on('ready', function() {
             const duration = wavesurfer.getDuration();
@@ -78,18 +79,16 @@
 
             // 設置點擊事件處理
             waveformDiv.addEventListener('click', function(e) {
-                            if (playMode === 'restart') {
-                waveformDiv.addEventListener('click', function(e) {
+                if (playMode === 'restart') {
                     const clickPosition = e.offsetX / waveformDiv.offsetWidth;
                     wavesurfer.seekTo(clickPosition);
                     if (!isPlaying) {
                         wavesurfer.play();
                         isPlaying = true;
                     }
-                });
-            }
- else {
-                    wavesurfer.playPause(); // 播放/暫停
+                } else {
+                    wavesurfer.playPause();
+                    isPlaying = !isPlaying;
                 }
             });
 
