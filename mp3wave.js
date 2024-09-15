@@ -74,7 +74,20 @@
             barRadius: 3,
             cursorWidth: 1,
             height: height,
-            barGap: 2
+            barGap: 2,
+            interact: false, // 禁用默認的交互
+            plugins: [
+                WaveSurfer.cursor.create({
+                    showTime: true,
+                    opacity: 1,
+                    customShowTimeStyle: {
+                        'background-color': '#000',
+                        color: '#fff',
+                        padding: '2px',
+                        'font-size': '10px'
+                    }
+                })
+            ]
         });
 
         // 載入音頻
@@ -91,6 +104,8 @@
             // 設置點擊事件處理
             overlay.addEventListener('click', function(e) {
                 e.preventDefault(); // 防止事件傳播到 WaveSurfer 內部
+                e.stopPropagation(); // 確保事件不會繼續傳播
+
                 if (playMode === 'restart') {
                     wavesurfer.stop(); // 停止當前播放
                     wavesurfer.seekTo(0); // 將播放位置重置到開始
@@ -108,6 +123,16 @@
                     isPlaying = !isPlaying;
                 }
             });
+
+            // 在 default 模式下，允許拖動進度條
+            if (playMode !== 'restart') {
+                overlay.addEventListener('mousedown', function(e) {
+                    const rect = waveformDiv.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const seekPercentage = x / rect.width;
+                    wavesurfer.seekTo(seekPercentage);
+                });
+            }
         });
 
         wavesurfer.on('finish', function() {
