@@ -1,6 +1,6 @@
 // 簡化的 MP3 波形播放器插件
 (function() {
-    // 創建樣式
+    // 創建樣式（保持不變）
     const style = document.createElement('style');
     style.textContent = `
         .mp3wave-player {
@@ -64,7 +64,7 @@
             cursorWidth: 1,
             height: height,
             barGap: 2,
-            interact: playMode !== 'restart' // 只在非 restart 模式下允許交互
+            interact: true // 允許所有模式下的交互
         });
 
         // 載入音頻
@@ -82,7 +82,13 @@
                     wavesurfer.seekTo(0);
                     wavesurfer.play();
                 } else { // default mode
-                    wavesurfer.playPause();
+                    const clickPosition = e.offsetX / overlay.offsetWidth;
+                    if (wavesurfer.isPlaying()) {
+                        wavesurfer.pause();
+                    } else {
+                        wavesurfer.seekTo(clickPosition);
+                        wavesurfer.play();
+                    }
                 }
             });
         });
